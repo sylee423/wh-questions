@@ -170,12 +170,16 @@ def action_utility(g, w, a):
     is_clean = vial_uncontaminated(w, a)
     return np.where(g == Goal.FIND_CLEAN, is_clean, 1 - is_clean)
 
-@jax.jit
-def DPValue(g, w):
-    """Expected utility of acting in world w under softmax policy."""
-    utilities = np.array([action_utility(g, w, a) for a in Action])
-    policy = jax.nn.softmax(ALPHA_POLICY * utilities)
-    return np.sum(policy * utilities)
+def DPValue(g, q, r):
+    """Value of decision problem after hearing response r to question q."""
+    l0 = L0()
+    posterior = np.array([l0[q, r, w] for w in World])
+    expected_utilities = np.array([
+        np.sum(posterior * np.array([action_utility(g, w, a) for w in World]))
+        for a in Action
+    ])
+    policy = jax.nn.softmax(ALPHA_POLICY * expected_utilities)
+    return np.sum(policy * expected_utilities)
 
 @memo
 def Q1[g: Goal, q: Question]():
@@ -185,8 +189,7 @@ def Q1[g: Goal, q: Question]():
         scenario: knows(q),
         scenario: given(k in KnowledgeConfig, wpp=knowledge_prior(k)),
         scenario: chooses(r in Response, wpp=R0[q, k, r]()),
-        scenario: chooses(w in World, wpp=L0[q, r, w]()),
-        E[DPValue(g, scenario.w)]
+        E[DPValue(g, scenario.q, scenario.r)]
     ]))
     return Pr[questioner.q == q]
 
