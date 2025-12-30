@@ -112,12 +112,18 @@ exp1 = run_exp1(n_vials=5)
 fig, ax = plt.subplots(figsize=(6, 4))
 br = np.array(exp1.base_rates)
 
-ax.plot(br, exp1.conditions['find']['p_uncont'], 'o-', color=COLORS['find'],
-        label='Find uncontaminated', linewidth=2, markersize=5)
-ax.plot(br, exp1.conditions['avoid']['p_uncont'], 's--', color=COLORS['avoid'],
-        label='Avoid contaminated', linewidth=2, markersize=5)
+ax.plot(br, exp1.conditions['find']['p_uncont'], 'o-', color=COLORS['find'], linewidth=2, markersize=5)
+ax.plot(br, exp1.conditions['avoid']['p_uncont'], 's--', color=COLORS['avoid'], linewidth=2, markersize=5)
 
-style_axis(ax, 'Base rate of contamination', 'P("Which are uncontaminated?")', (0.05, 0.95))
+# Direct labels on curves (positioned to avoid overlap)
+ax.text(0.45, 0.92, 'Find uncontaminated', color=COLORS['find'], fontsize=11, fontweight='bold')
+ax.text(0.45, 0.08, 'Avoid contaminated', color=COLORS['avoid'], fontsize=11, fontweight='bold')
+
+ax.axhline(0.5, color='gray', linestyle=':', alpha=0.5, linewidth=1)
+ax.set(xlabel='Base rate of contamination', ylabel='P("Which are uncontaminated?")', xlim=(0.05, 0.95), ylim=(0, 1))
+ax.set_yticks([0, 0.25, 0.5, 0.75, 1.0])
+ax.spines[['top', 'right']].set_visible(False)
+
 plt.tight_layout()
 plt.show()
 ```
@@ -168,11 +174,25 @@ fig, axes = plt.subplots(1, 2, figsize=(10, 4))
 br = np.array(exp2.base_rates)
 
 for ax, (dt, title) in zip(axes, [('singleton', 'Singleton selection'), ('set_id', 'Set identification')]):
-    ax.plot(br, exp2.conditions[dt]['find_p'], 'o-', color=COLORS['find'],
-            label='Find uncontaminated', linewidth=2, markersize=6)
-    ax.plot(br, 1 - np.array(exp2.conditions[dt]['avoid_p']), 's--', color=COLORS['avoid'],
-            label='Avoid contaminated', linewidth=2, markersize=6)
-    style_axis(ax, 'Base rate of contamination', 'P("Which are uncontaminated?")', (0.15, 0.85), title)
+    find_y = exp2.conditions[dt]['find_p']
+    avoid_y = 1 - np.array(exp2.conditions[dt]['avoid_p'])
+
+    ax.plot(br, find_y, 'o-', color=COLORS['find'], linewidth=2, markersize=6)
+    ax.plot(br, avoid_y, 's--', color=COLORS['avoid'], linewidth=2, markersize=6)
+
+    # Direct labels - position depends on curve separation
+    if dt == 'singleton':
+        ax.text(0.45, 0.88, 'Find uncontaminated', color=COLORS['find'], fontsize=10, fontweight='bold')
+        ax.text(0.25, 0.18, 'Avoid contaminated', color=COLORS['avoid'], fontsize=10, fontweight='bold')
+    else:  # set_id - curves overlap, label at right end
+        ax.text(0.62, 0.58, 'Find uncontaminated', color=COLORS['find'], fontsize=10, fontweight='bold')
+        ax.text(0.62, 0.42, 'Avoid contaminated', color=COLORS['avoid'], fontsize=10, fontweight='bold')
+
+    ax.axhline(0.5, color='gray', linestyle=':', alpha=0.5, linewidth=1)
+    ax.set(xlabel='Base rate of contamination', ylabel='P("Which are uncontaminated?")', xlim=(0.15, 0.85), ylim=(0, 1))
+    ax.set_yticks([0, 0.25, 0.5, 0.75, 1.0])
+    ax.set_title(title, fontsize=12, fontweight='bold')
+    ax.spines[['top', 'right']].set_visible(False)
 
 plt.tight_layout()
 plt.show()
