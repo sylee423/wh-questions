@@ -53,7 +53,7 @@ const nVials = 4;
 // Question options for forced choice
 const questionOptions = [
     "Which vials are contaminated?",
-    "Which vials are uncontaminated?"
+    "Which vials are not contaminated?"
 ];
 
 // =============================================================================
@@ -316,7 +316,7 @@ function getVisualInstructionPages() {
                     "Which vials are <strong style="color: var(--danger-color);">contaminated</strong>?"
                 </div>
                 <div class="question-btn" style="cursor: default;">
-                    "Which vials are <strong style="color: var(--safe-color);">uncontaminated</strong>?"
+                    "Which vials are <strong style="color: var(--safe-color);">not contaminated</strong>?"
                 </div>
             </div>
             <p class="instruction-text">Think about which question would give you the most useful information for <strong>your goal</strong>.</p>
@@ -393,7 +393,7 @@ const mainTrial = {
         data.button_order = [...mainTrialButtonOrder];
         data.chosen_question = mainTrialButtonOrder[data.response];
         data.chose_which_contaminated = data.chosen_question === "Which vials are contaminated?";
-        data.chose_which_uncontaminated = data.chosen_question === "Which vials are uncontaminated?";
+        data.chose_which_uncontaminated = data.chosen_question === "Which vials are not contaminated?";
     },
     button_html: (choice) => `<button class="jspsych-btn" style="min-width: 300px;">${choice}</button>`,
     on_load: function() { disableButtonsTemporarily(buttonDisableTime); }
