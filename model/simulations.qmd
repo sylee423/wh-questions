@@ -135,7 +135,7 @@ Tests whether goal-alignment depends on the **decision problem structure**. For 
 - **Decision structure** (between): Singleton vs Set ID
 - **Goal** (between): FIND_UNCONTAMINATED vs AVOID_CONTAMINATION
 - **Base rate** (within): 20%, 35%, 50%, 65%, 80%
-- **Fixed**: N=4 vials
+- **Fixed**: N=5 vials
 
 ```{python}
 def run_exp2(n_vials: int = 4, base_rates: list[float] | None = None) -> Results:
@@ -154,7 +154,7 @@ def run_exp2(n_vials: int = 4, base_rates: list[float] | None = None) -> Results
         for br in base_rates:
             if res := run_model(n_vials, br, dt):
                 results.conditions[dt]['find_p'].append(res['find_uncontam']['p_which_uncont'])
-                results.conditions[dt]['avoid_p'].append(res['avoid_contam']['p_which_cont'])
+                results.conditions[dt]['avoid_p'].append(res['avoid_contam']['p_which_uncont'])
                 print(f" ✓", end="", flush=True)
             else:
                 results.conditions[dt]['find_p'].append(np.nan)
@@ -163,39 +163,34 @@ def run_exp2(n_vials: int = 4, base_rates: list[float] | None = None) -> Results
         print()
     return results
 
-exp2 = run_exp2(n_vials=4)
+exp2 = run_exp2(n_vials=5)
 ```
 
 ```{python}
 #| label: fig-exp2
-#| fig-cap: "Experiment 2: Goal effect is strong for singleton but absent for set identification"
+#| fig-cap: "Experiment 2: Goal effect is strong for singleton but reduced for set identification"
 
 fig, axes = plt.subplots(1, 2, figsize=(10, 4))
 br = np.array(exp2.base_rates)
 
-for ax, (dt, title) in zip(axes, [('singleton', 'Singleton selection'), ('set_id', 'Set identification')]):
+for ax, (dt, title) in zip(axes, [('singleton', 'Singleton selection'), ('set_id', 'Set identification (F1 score)')]):
     find_y = exp2.conditions[dt]['find_p']
-    avoid_y = 1 - np.array(exp2.conditions[dt]['avoid_p'])
+    avoid_y = exp2.conditions[dt]['avoid_p']
 
-    ax.plot(br, find_y, 'o-', color=COLORS['find'], linewidth=2, markersize=6)
-    ax.plot(br, avoid_y, 's--', color=COLORS['avoid'], linewidth=2, markersize=6)
-
-    # Direct labels - position depends on curve separation
-    if dt == 'singleton':
-        ax.text(0.45, 0.88, 'Find uncontaminated', color=COLORS['find'], fontsize=10, fontweight='bold')
-        ax.text(0.25, 0.18, 'Avoid contaminated', color=COLORS['avoid'], fontsize=10, fontweight='bold')
-    else:  # set_id - curves overlap, label at right end
-        ax.text(0.62, 0.58, 'Find uncontaminated', color=COLORS['find'], fontsize=10, fontweight='bold')
-        ax.text(0.62, 0.42, 'Avoid contaminated', color=COLORS['avoid'], fontsize=10, fontweight='bold')
+    ax.plot(br, find_y, 'o-', color=COLORS['find'], linewidth=2, markersize=6, label='find_uncontam')
+    ax.plot(br, avoid_y, 'o-', color=COLORS['avoid'], linewidth=2, markersize=6, label='avoid_contam')
 
     ax.axhline(0.5, color='gray', linestyle=':', alpha=0.5, linewidth=1)
     ax.set(xlabel='Base rate of contamination', ylabel='P("Which are uncontaminated?")', xlim=(0.15, 0.85), ylim=(0, 1))
     ax.set_yticks([0, 0.25, 0.5, 0.75, 1.0])
     ax.set_title(title, fontsize=12, fontweight='bold')
     ax.spines[['top', 'right']].set_visible(False)
+    ax.legend(title='goal', loc='upper left', frameon=False)
 
 plt.tight_layout()
+plt.savefig(SCRIPT_DIR / 'exp2_figure.pdf', format='pdf', bbox_inches='tight')
 plt.show()
+print(f"Saved: {SCRIPT_DIR / 'exp2_figure.pdf'}")
 ```
 
 ## Save Results

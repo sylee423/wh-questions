@@ -12,588 +12,7 @@
     <script src="https://unpkg.com/@jspsych/plugin-preload@2.0.0"></script>
     <script src="https://unpkg.com/@jspsych/plugin-call-function@2.0.0"></script>
     <link href="https://unpkg.com/jspsych@8.0.2/css/jspsych.css" rel="stylesheet" type="text/css" />
-    <style>
-        /* =================================================================
-           BASE STYLES
-           ================================================================= */
-        :root {
-            --safe-color: #4CAF50;
-            --safe-light: #c8e6c9;
-            --safe-glow: rgba(76, 175, 80, 0.3);
-            --danger-color: #f44336;
-            --danger-light: #ffcdd2;
-            --danger-glow: rgba(244, 67, 54, 0.3);
-            --unknown-color: #9e9e9e;
-            --unknown-light: #eeeeee;
-            --goal-highlight: #fff3cd;
-            --goal-border: #ffc107;
-            --info-bg: #e3f2fd;
-            --info-border: #2196F3;
-            --glass-color: rgba(200, 230, 255, 0.4);
-            --liquid-unknown: linear-gradient(to bottom, #b0bec5 0%, #78909c 100%);
-            --liquid-safe: linear-gradient(to bottom, #81c784 0%, #4CAF50 100%);
-            --liquid-danger: linear-gradient(to bottom, #e57373 0%, #f44336 100%);
-        }
-
-        .jspsych-content {
-            max-width: 900px;
-            font-size: 18px;
-            line-height: 1.6;
-        }
-
-        .jspsych-btn {
-            font-size: 18px;
-            padding: 15px 30px;
-            margin: 10px 15px;
-            border-radius: 8px;
-            border: 2px solid #333;
-            background: linear-gradient(to bottom, #ffffff 0%, #f0f0f0 100%);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            min-width: 280px;
-        }
-
-        .jspsych-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            background: linear-gradient(to bottom, #ffffff 0%, #e8e8e8 100%);
-        }
-
-        .jspsych-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* =================================================================
-           VIAL GRAPHICS SYSTEM
-           ================================================================= */
-        .vial-rack {
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            gap: 20px;
-            padding: 30px 20px 20px 20px;
-            background: linear-gradient(to bottom, #f5f5f5 0%, #e0e0e0 100%);
-            border-radius: 10px;
-            margin: 20px auto;
-            max-width: 500px;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .vial-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .vial {
-            width: 36px;
-            height: 75px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* Vial cap/stopper */
-        .vial::before {
-            content: '';
-            position: absolute;
-            top: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 24px;
-            height: 10px;
-            background: linear-gradient(to bottom, #555 0%, #333 100%);
-            border-radius: 3px 3px 0 0;
-            z-index: 2;
-        }
-
-        /* Vial neck */
-        .vial::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 20px;
-            height: 15px;
-            background: var(--glass-color);
-            border: 2px solid rgba(100, 150, 180, 0.5);
-            border-bottom: none;
-            z-index: 1;
-        }
-
-        /* Main vial body */
-        .vial-body {
-            position: absolute;
-            top: 13px;
-            width: 100%;
-            height: 62px;
-            background: var(--glass-color);
-            border: 2px solid rgba(100, 150, 180, 0.5);
-            border-radius: 0 0 18px 18px;
-            overflow: hidden;
-            box-shadow:
-                inset -3px 0 8px rgba(255,255,255,0.3),
-                inset 3px 0 8px rgba(0,0,0,0.05),
-                0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        /* Liquid inside vial */
-        .vial-liquid {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 70%;
-            border-radius: 0 0 15px 15px;
-            transition: all 0.3s ease;
-        }
-
-        /* Liquid states */
-        .vial.unknown .vial-liquid {
-            background: var(--liquid-unknown);
-        }
-
-        .vial.safe .vial-liquid {
-            background: var(--liquid-safe);
-            box-shadow: 0 0 10px var(--safe-glow);
-        }
-
-        .vial.danger .vial-liquid {
-            background: var(--liquid-danger);
-            box-shadow: 0 0 10px var(--danger-glow);
-        }
-
-        /* Vial label */
-        .vial-label {
-            font-size: 14px;
-            font-weight: bold;
-            color: #555;
-            min-height: 20px;
-        }
-
-        /* Status indicator on vial */
-        .vial-status {
-            position: absolute;
-            bottom: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 16px;
-            font-weight: bold;
-            z-index: 3;
-            text-shadow: 0 0 3px white;
-        }
-
-        .vial.unknown .vial-status::after { content: '?'; color: #555; }
-        .vial.safe .vial-status::after { content: '✓'; color: #1b5e20; }
-        .vial.danger .vial-status::after { content: '☠'; color: #b71c1c; }
-
-        /* Tested indicator */
-        .vial.tested::before {
-            background: linear-gradient(to bottom, #1976D2 0%, #0D47A1 100%);
-        }
-
-        /* =================================================================
-           INSTRUCTION PAGES
-           ================================================================= */
-        .instruction-container {
-            text-align: center;
-            padding: 20px;
-        }
-
-        .instruction-title {
-            font-size: 28px;
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .instruction-text {
-            font-size: 20px;
-            color: #444;
-            margin: 15px 0;
-            max-width: 650px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .instruction-emphasis {
-            background: var(--goal-highlight);
-            border: 2px solid var(--goal-border);
-            border-radius: 8px;
-            padding: 15px 20px;
-            margin: 20px auto;
-            max-width: 600px;
-            font-weight: 500;
-        }
-
-        .assistant-avatar {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #42a5f5 0%, #1976d2 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            margin: 20px auto;
-            box-shadow: 0 4px 15px rgba(25, 118, 210, 0.3);
-        }
-
-        .partial-knowledge-demo {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin: 25px 0;
-            flex-wrap: wrap;
-        }
-
-        .knowledge-column {
-            text-align: center;
-            padding: 15px;
-            background: #f9f9f9;
-            border-radius: 10px;
-            min-width: 180px;
-        }
-
-        .knowledge-column h4 {
-            margin: 0 0 10px 0;
-            color: #1976d2;
-        }
-
-        /* =================================================================
-           TRIAL DISPLAY
-           ================================================================= */
-        .trial-container {
-            position: relative;
-        }
-
-        .trial-header {
-            position: absolute;
-            top: -40px;
-            right: 0;
-            font-size: 14px;
-            color: #666;
-            background: #f0f0f0;
-            padding: 5px 12px;
-            border-radius: 15px;
-        }
-
-        .practice-badge {
-            background: linear-gradient(135deg, #81c784 0%, #4caf50 100%);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 20px;
-            display: inline-block;
-            margin-bottom: 15px;
-            font-weight: bold;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .info-card {
-            background: var(--info-bg);
-            border: 2px solid var(--info-border);
-            border-radius: 10px;
-            padding: 12px 20px;
-            margin: 15px auto;
-            max-width: 450px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .info-card .icon {
-            font-size: 24px;
-        }
-
-        .goal-card {
-            background: var(--goal-highlight);
-            border: 2px solid var(--goal-border);
-            border-radius: 10px;
-            padding: 15px 25px;
-            margin: 15px auto;
-            max-width: 500px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .goal-card .icon {
-            font-size: 28px;
-        }
-
-        .goal-card.find-goal {
-            border-color: var(--safe-color);
-            background: var(--safe-light);
-        }
-
-        .goal-card.avoid-goal {
-            border-color: var(--danger-color);
-            background: var(--danger-light);
-        }
-
-        .question-prompt {
-            font-size: 22px;
-            font-weight: bold;
-            margin: 25px 0 15px 0;
-            color: #333;
-        }
-
-        /* =================================================================
-           PRACTICE FEEDBACK
-           ================================================================= */
-        .assistant-response {
-            background: #e3f2fd;
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px auto;
-            max-width: 550px;
-            position: relative;
-        }
-
-        .assistant-response::before {
-            content: '';
-            position: absolute;
-            top: -10px;
-            left: 30px;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-bottom: 10px solid #e3f2fd;
-        }
-
-        .speech-bubble {
-            font-style: italic;
-            color: #1565c0;
-            margin: 10px 0;
-        }
-
-        .insight-box {
-            background: #fff8e1;
-            border: 2px solid #ffb300;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 20px auto;
-            max-width: 550px;
-        }
-
-        .insight-box strong {
-            color: #e65100;
-        }
-
-        /* =================================================================
-           OUTCOME VISUALIZATION
-           ================================================================= */
-        .outcome-demo {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin: 25px 0;
-        }
-
-        .outcome-box {
-            text-align: center;
-            padding: 20px;
-            border-radius: 10px;
-            min-width: 200px;
-        }
-
-        .outcome-box.success {
-            background: var(--safe-light);
-            border: 2px solid var(--safe-color);
-        }
-
-        .outcome-box.failure {
-            background: var(--danger-light);
-            border: 2px solid var(--danger-color);
-        }
-
-        .outcome-icon {
-            font-size: 48px;
-            margin-bottom: 10px;
-        }
-
-        .outcome-label {
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        /* =================================================================
-           SORTING BINS (for set_id)
-           ================================================================= */
-        .sorting-demo {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin: 20px 0;
-        }
-
-        .sorting-bin {
-            width: 150px;
-            height: 120px;
-            border: 3px dashed #999;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: #fafafa;
-        }
-
-        .sorting-bin.safe-bin {
-            border-color: var(--safe-color);
-            background: var(--safe-light);
-        }
-
-        .sorting-bin.dispose-bin {
-            border-color: var(--danger-color);
-            background: var(--danger-light);
-        }
-
-        .bin-label {
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        .bin-icon {
-            font-size: 36px;
-        }
-
-        /* =================================================================
-           ANIMATIONS
-           ================================================================= */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 0 5px var(--safe-glow); }
-            50% { box-shadow: 0 0 20px var(--safe-glow); }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        .pulse {
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        .glow-safe {
-            animation: glow 2s ease-in-out infinite;
-        }
-
-        /* =================================================================
-           COMPREHENSION CHECKS
-           ================================================================= */
-        .check-correct {
-            color: var(--safe-color);
-            font-weight: bold;
-            font-size: 20px;
-        }
-
-        .check-incorrect {
-            color: var(--danger-color);
-            font-weight: bold;
-        }
-
-        /* =================================================================
-           INSTRUCTIONS BOX (legacy - for demographics/debrief)
-           ================================================================= */
-        .instructions-box {
-            text-align: left;
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        /* =================================================================
-           QUESTION BUTTONS (used in instructions)
-           ================================================================= */
-        .question-btn {
-            background: linear-gradient(to bottom, #ffffff 0%, #f5f5f5 100%);
-            border: 3px solid #1976d2;
-            border-radius: 12px;
-            padding: 20px 30px;
-            font-size: 18px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            min-width: 280px;
-        }
-
-        .question-btn:hover:not(:disabled) {
-            background: linear-gradient(to bottom, #e3f2fd 0%, #bbdefb 100%);
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(25, 118, 210, 0.3);
-        }
-
-        /* =================================================================
-           SENTENCE COMPLETION INPUT
-           ================================================================= */
-        .sentence-completion {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            font-size: 24px;
-            margin: 30px 0 20px 0;
-            flex-wrap: wrap;
-        }
-
-        .sentence-completion input[type="text"] {
-            font-size: 22px;
-            padding: 8px 12px;
-            border: none;
-            border-bottom: 3px solid #1976d2;
-            background: transparent;
-            min-width: 200px;
-            text-align: center;
-            outline: none;
-            transition: border-color 0.2s ease;
-        }
-
-        .sentence-completion input[type="text"]:focus {
-            border-bottom-color: #0d47a1;
-        }
-
-        .sentence-completion input[type="text"]::placeholder {
-            color: #999;
-            font-style: italic;
-        }
-
-        .submit-container {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .submit-container button {
-            font-size: 18px;
-            padding: 12px 40px;
-            border-radius: 8px;
-            border: 2px solid #1976d2;
-            background: linear-gradient(to bottom, #e3f2fd 0%, #bbdefb 100%);
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .submit-container button:hover:not(:disabled) {
-            background: linear-gradient(to bottom, #bbdefb 0%, #90caf9 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
-        }
-
-        .submit-container button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-    </style>
+    <link href="styles.css" rel="stylesheet" type="text/css" />
 </head>
 <body></body>
 <script>
@@ -625,8 +44,8 @@ const decisionStructure = 'singleton';
 const testMode = urlParams.get('testMode') === 'true';
 const buttonDisableTime = testMode ? 100 : 2000;
 
-// Number of vials (5 for exp1)
-const nVials = 5;
+// Number of vials (10 for exp1)
+const nVials = 10;
 
 // =============================================================================
 // VIAL RENDERING HELPERS
@@ -661,13 +80,35 @@ function renderVialRack(states = null, n = nVials) {
 // STIMULUS TEXT CONFIGURATIONS
 // =============================================================================
 
-function getBaseRateText(baseRate) {
-    const texts = {
-        0.2: `About <strong>1</strong> of ${nVials} is likely contaminated`,
-        0.5: `About <strong>2-3</strong> of ${nVials} are likely contaminated`,
-        0.8: `About <strong>4</strong> of ${nVials} are likely contaminated`
-    };
-    return texts[baseRate];
+function renderProportionBar(baseRate) {
+    const nContaminated = Math.round(baseRate * nVials);
+    const nSafe = nVials - nContaminated;
+    const contaminatedPct = baseRate * 100;
+    const safePct = 100 - contaminatedPct;
+
+    return `
+        <div class="proportion-container">
+            <div class="proportion-label">Expected contamination rate:</div>
+            <div class="proportion-bar">
+                <div class="proportion-segment contaminated" style="width: ${contaminatedPct}%;">
+                    ${nContaminated > 0 ? `${nContaminated} ☠` : ''}
+                </div>
+                <div class="proportion-segment safe" style="width: ${safePct}%;">
+                    ${nSafe > 0 ? `${nSafe} ✓` : ''}
+                </div>
+            </div>
+            <div class="proportion-legend">
+                <div class="legend-item">
+                    <div class="legend-dot contaminated"></div>
+                    <span>Contaminated (${nContaminated})</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot safe"></div>
+                    <span>Safe (${nSafe})</span>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 // Goal configuration (singleton only for exp1)
@@ -758,19 +199,31 @@ let timeline = [];
 const welcome = {
     type: jsPsychHtmlButtonResponse,
     stimulus: `
-        <h1>Welcome to the Study</h1>
-        <div class="instructions-box">
-            <p>Thank you for participating in this research study conducted by [University Name].</p>
-            <p><strong>Purpose:</strong> This study investigates how people make decisions and ask questions in uncertain situations.</p>
-            <p><strong>Duration:</strong> Approximately 10-15 minutes.</p>
-            <p><strong>Compensation:</strong> You will receive the posted payment upon completion.</p>
-            <p><strong>Confidentiality:</strong> Your responses are anonymous and will only be used for research purposes.</p>
-            <p><strong>Voluntary Participation:</strong> You may withdraw at any time without penalty.</p>
-            <br>
-            <p>By clicking "I Agree" below, you confirm that you are at least 18 years old and consent to participate.</p>
+        <h2 style="text-align: center;">STANFORD UNIVERSITY</h2>
+        <h3 style="text-align: center;">Research Information Sheet</h3>
+        <div class="instructions-box" style="font-size: 15px; line-height: 1.5;">
+            <p><strong>Protocol Director:</strong> Robert Hawkins<br>
+            <strong>Protocol Title:</strong> Communication and social cognition in natural audiovisual contexts<br>
+            <strong>IRB#</strong> 77226</p>
+
+            <p><strong>DESCRIPTION:</strong> You are invited to participate in a research study about language and communication. The purpose of the research is to understand how people formulate questions to gather information in uncertain situations. This research will be conducted through the Prolific platform, including participants from the US, UK, and Canada.</p>
+
+            <p><strong>TIME INVOLVEMENT:</strong> The task will last the amount of time advertised on Prolific. You are free to withdraw from the study at any time.</p>
+
+            <p><strong>RISKS AND BENEFITS:</strong> Study data will be stored securely, in compliance with Stanford University standards, minimizing the risk of confidentiality breach. This study advances our scientific understanding of how people communicate and make decisions. We cannot and do not guarantee or promise that you will receive any benefits from this study.</p>
+
+            <p><strong>PAYMENTS:</strong> You will receive payment in the amount advertised on Prolific. If you do not complete this study, you will receive prorated payment based on the time that you have spent.</p>
+
+            <p><strong>PARTICIPANT'S RIGHTS:</strong> If you have read this form and have decided to participate in this project, please understand your participation is voluntary and you have the right to withdraw your consent or discontinue participation at any time without penalty or loss of benefits to which you are otherwise entitled. The alternative is not to participate. You have the right to refuse to answer particular questions. The results of this research study may be presented at scientific or professional meetings or published in scientific journals. Your individual privacy will be maintained in all published and written data resulting from the study. In accordance with scientific norms, the data from this study may be used or shared with other researchers for future research (after removing personally identifying information) without additional consent from you.</p>
+
+            <p><strong>CONTACT INFORMATION:</strong><br>
+            <em>Questions:</em> If you have any questions, concerns or complaints about this research, its procedures, risks and benefits, contact the Protocol Director, Robert Hawkins (rdhawkins@stanford.edu).<br><br>
+            <em>Independent Contact:</em> If you are not satisfied with how this study is being conducted, or if you have any concerns, complaints, or general questions about the research or your rights as a participant, please contact the Stanford Institutional Review Board (IRB) to speak to someone independent of the research team at 650-723-2480 or toll free at 1-866-680-2906, or email at irb2-manager@stanford.edu. You can also write to the Stanford IRB, Stanford University, 1705 El Camino Real, Palo Alto, CA 94306.</p>
+
+            <p style="text-align: center; margin-top: 20px;"><strong>Please save or print a copy of this page for your records.<br>If you agree to participate in this research, please click "Continue".</strong></p>
         </div>
     `,
-    choices: ['I Agree'],
+    choices: ['Continue'],
     data: { trial_type: 'consent' }
 };
 timeline.push(welcome);
@@ -917,7 +370,7 @@ function getVisualInstructionPages() {
             <p class="instruction-text">Type your completion in the text box provided.</p>
             <p class="instruction-text">Think about which question would give you the most useful information for <strong>your goal</strong>.</p>
             <div class="instruction-emphasis">
-                You'll complete <strong>3 trials</strong> (plus one practice trial).
+                You'll complete <strong>3 trials</strong> with different contamination rates.
             </div>
         </div>
     `);
@@ -943,37 +396,44 @@ const maxComprehensionAttempts = 3;
 let comp1Attempts = 0;
 let comp1Passed = false;
 
-// Universal comprehension check options (works for both singleton and set_id)
-// The key concept is goal orientation, not task-specific wording
-const goalCheckOptions = [
-    'Prioritize finding/identifying uncontaminated (safe) vials',
-    'Prioritize avoiding/identifying contaminated (dangerous) vials',
+// Comprehension check options for singleton (exp1 is always singleton)
+const goalCheckOptionsBase = [
+    'Find an uncontaminated vial to use',
+    'Avoid picking a contaminated vial',
     'Test as many vials as possible',
     'Ask the assistant multiple questions'
 ];
 
-// The correct answer depends on goal condition (index 0 for find, 1 for avoid)
-const goalCheckCorrectIndex = goalCondition === 'find' ? 0 : 1;
+// The correct answer text (not index, since we'll shuffle)
+const goalCheckCorrectAnswer = goalCondition === 'find'
+    ? goalCheckOptionsBase[0]
+    : goalCheckOptionsBase[1];
+
+// Shuffled options (will be set on_start)
+let goalCheckOptionsShuffled = [];
 
 const comprehensionCheck1 = {
     type: jsPsychSurveyMultiChoice,
-    questions: [
-        {
+    questions: function() {
+        // Shuffle options each time the check is shown
+        goalCheckOptionsShuffled = jsPsych.randomization.shuffle([...goalCheckOptionsBase]);
+        return [{
             prompt: '<strong>Comprehension Check 1:</strong> What is your main goal in this task?',
             name: 'goal_check',
-            options: goalCheckOptions,
+            options: goalCheckOptionsShuffled,
             required: true
-        }
-    ],
+        }];
+    },
     data: { trial_type: 'comprehension_check_1' },
     on_finish: function(data) {
         comp1Attempts++;
         const response = data.response.goal_check;
-        data.correct = response === goalCheckOptions[goalCheckCorrectIndex];
+        data.correct = response === goalCheckCorrectAnswer;
+        data.option_order = goalCheckOptionsShuffled;
         comp1Passed = data.correct;
         console.log('Comprehension check 1:', {
             response: response,
-            correctAnswer: goalCheckOptions[goalCheckCorrectIndex],
+            correctAnswer: goalCheckCorrectAnswer,
             isCorrect: data.correct,
             attempts: comp1Attempts
         });
@@ -988,8 +448,11 @@ const comprehensionFeedback1 = {
         } else {
             const attemptsLeft = maxComprehensionAttempts - comp1Attempts;
             if (attemptsLeft > 0) {
+                const reminderText = goalCondition === 'find'
+                    ? 'find an uncontaminated vial to use'
+                    : 'avoid picking a contaminated vial';
                 return `<p class="check-incorrect">That's not quite right.</p>
-                        <p>Remember: Your goal is to <strong>${goalCondition === 'find' ? 'find uncontaminated vials' : 'avoid contaminated vials'}</strong>.</p>
+                        <p>Remember: Your goal is to <strong>${reminderText}</strong>.</p>
                         <p>You have ${attemptsLeft} attempt(s) remaining.</p>`;
             } else {
                 return `<p class="check-incorrect">You have exceeded the maximum attempts.</p>
@@ -1025,26 +488,32 @@ timeline.push(comprehensionLoop1);
 let comp2Attempts = 0;
 let comp2Passed = false;
 
+const comp2OptionsBase = [
+    'Yes, the assistant knows everything',
+    'No, the assistant only has partial information',
+    'The assistant knows nothing',
+    'It depends on the trial'
+];
+const comp2CorrectAnswer = 'No, the assistant only has partial information';
+let comp2OptionsShuffled = [];
+
 const comprehensionCheck2 = {
     type: jsPsychSurveyMultiChoice,
-    questions: [
-        {
+    questions: function() {
+        comp2OptionsShuffled = jsPsych.randomization.shuffle([...comp2OptionsBase]);
+        return [{
             prompt: '<strong>Comprehension Check 2:</strong> Does your lab assistant know the status of ALL the vials?',
             name: 'assistant_check',
-            options: [
-                'Yes, the assistant knows everything',
-                'No, the assistant only has partial information',
-                'The assistant knows nothing',
-                'It depends on the trial'
-            ],
+            options: comp2OptionsShuffled,
             required: true
-        }
-    ],
+        }];
+    },
     data: { trial_type: 'comprehension_check_2' },
     on_finish: function(data) {
         comp2Attempts++;
         const response = data.response.assistant_check;
-        data.correct = response === 'No, the assistant only has partial information';
+        data.correct = response === comp2CorrectAnswer;
+        data.option_order = comp2OptionsShuffled;
         comp2Passed = data.correct;
     }
 };
@@ -1068,7 +537,7 @@ const comprehensionFeedback2 = {
     },
     choices: function() {
         if (comp2Passed) {
-            return ['Continue to Practice'];
+            return ['Begin Trials'];
         } else if (comp2Attempts >= maxComprehensionAttempts) {
             return ['Exit Study'];
         } else {
@@ -1091,48 +560,17 @@ const comprehensionLoop2 = {
 };
 timeline.push(comprehensionLoop2);
 
-// -----------------------------------------------------------------------------
-// PRACTICE TRIAL
-// -----------------------------------------------------------------------------
-
-const practiceIntro = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: `
-        <div class="instruction-container">
-            <h2 class="instruction-title">🧪 Practice Trial</h2>
-            <p class="instruction-text">Let's do one practice trial to make sure you understand the task.</p>
-            <p class="instruction-text">This won't count toward your data.</p>
-        </div>
-    `,
-    choices: ['Start Practice'],
-    data: { trial_type: 'practice_intro' }
-};
-timeline.push(practiceIntro);
-
-// Create streamlined trial stimulus
-function createTrialStimulus(baseRate, isPractice = false, trialNum = null, totalTrials = null) {
-    const trialHeader = (!isPractice && trialNum !== null)
+// Create trial stimulus
+function createTrialStimulus(baseRate, trialNum = null, totalTrials = null) {
+    const trialHeader = (trialNum !== null)
         ? `<div class="trial-header">Trial ${trialNum} of ${totalTrials}</div>`
         : '';
-
-    const practiceBadge = isPractice
-        ? '<div class="practice-badge">Practice Trial</div>'
-        : '';
-
-    const scenarioIntro = isPractice
-        ? ''
-        : '<p style="font-size: 18px; color: #555; margin-bottom: 15px;">Now consider a new scenario:</p>';
 
     return `
         <div class="trial-container">
             ${trialHeader}
-            ${practiceBadge}
-            ${scenarioIntro}
             ${renderVialRack()}
-            <div class="info-card">
-                <span class="icon">📊</span>
-                <span>${getBaseRateText(baseRate)}</span>
-            </div>
+            ${renderProportionBar(baseRate)}
             <div class="goal-card ${getGoalConfig().cssClass}">
                 <span class="icon">${getGoalConfig().icon}</span>
                 <span><strong>Your Goal:</strong> ${getGoalConfig().text}</span>
@@ -1140,104 +578,6 @@ function createTrialStimulus(baseRate, isPractice = false, trialNum = null, tota
         </div>
     `;
 }
-
-// Track response for practice feedback
-let practiceResponse = null;
-
-// Practice trial scenario - sentence completion
-const practiceScenario = {
-    type: jsPsychSurveyHtmlForm,
-    html: function() {
-        return `
-            ${createTrialStimulus(0.5, true)}
-            <div class="sentence-completion">
-                <span>"Which vials are</span>
-                <input type="text" id="completion" name="completion" placeholder="type here..." autocomplete="off" required>
-                <span>?"</span>
-            </div>
-        `;
-    },
-    autofocus: 'completion',
-    button_label: 'Submit',
-    data: {
-        trial_type: 'practice_trial',
-        base_rate: 0.5,
-        is_practice: true
-    },
-    on_load: function() {
-        // Disable submit button temporarily for minimum viewing time
-        const submitBtn = document.querySelector('#jspsych-survey-html-form-next');
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.style.opacity = '0.5';
-            setTimeout(() => {
-                submitBtn.disabled = false;
-                submitBtn.style.opacity = '1';
-            }, buttonDisableTime);
-        }
-    },
-    on_finish: function(data) {
-        const response = data.response.completion.trim().toLowerCase();
-        data.raw_response = data.response.completion.trim();
-        data.response_lowercase = response;
-        // Categorize response
-        data.chose_which_contaminated = response.includes('contaminated') || response.includes('dangerous') || response.includes('unsafe');
-        data.chose_which_uncontaminated = response.includes('uncontaminated') || response.includes('safe') || response.includes('clean');
-        practiceResponse = data.raw_response;
-    }
-};
-timeline.push(practiceScenario);
-
-// Practice feedback with visual response demonstration
-const practiceFeedback = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: function() {
-        // Determine if they asked about contaminated or uncontaminated based on their response
-        const response = practiceResponse ? practiceResponse.toLowerCase() : '';
-        const askedContaminated = response.includes('contaminated') || response.includes('dangerous') || response.includes('unsafe') || response.includes('bad');
-
-        // Create visual representation of a simulated response
-        let vialStates, responseText, insightText;
-
-        if (askedContaminated) {
-            // Show contaminated vials revealed
-            vialStates = ['unknown', 'danger', 'unknown', 'unknown', 'danger'];
-            responseText = `"I've tested some vials. Vials 2 and 5 are <strong style="color: var(--danger-color);">contaminated</strong>. I haven't tested the others."`;
-            insightText = goalCondition === 'find'
-                ? `<strong>Think about it:</strong> You now know which vials to <strong>avoid</strong>... but do you know which vial is definitely <strong>safe</strong> to use?`
-                : `<strong>Think about it:</strong> You now know some vials are <strong>dangerous</strong>. You can pick from the untested ones, but there might be more contaminated vials you don't know about.`;
-        } else {
-            // Show uncontaminated vial revealed
-            vialStates = ['safe', 'unknown', 'unknown', 'unknown', 'unknown'];
-            responseText = `"I've tested some vials. Vial 1 is <strong style="color: var(--safe-color);">uncontaminated</strong>. I haven't tested the others."`;
-            insightText = goalCondition === 'find'
-                ? `<strong>Think about it:</strong> You now know one <strong>safe</strong> option! But there might be other safe vials you don't know about.`
-                : `<strong>Think about it:</strong> You know vial 1 is safe, but you don't know which of the others might be <strong>contaminated</strong>.`;
-        }
-
-        return `
-            <div class="instruction-container fade-in">
-                <h2 class="instruction-title">📋 Your Assistant's Response</h2>
-                <p style="margin-bottom: 10px;">You asked: <strong>"Which vials are ${practiceResponse || '...'}?"</strong></p>
-                <div class="assistant-avatar">👨‍🔬</div>
-                <div class="assistant-response">
-                    <p class="speech-bubble">${responseText}</p>
-                </div>
-                ${renderVialRack(vialStates)}
-                <div class="insight-box">
-                    <p>${insightText}</p>
-                </div>
-                <p class="instruction-text" style="margin-top: 25px;">
-                    In real trials, you won't see the response—you'll just complete your question and move on.<br>
-                    Think carefully about which question would be most helpful for <strong>your goal</strong>.
-                </p>
-            </div>
-        `;
-    },
-    choices: ['Begin Real Trials'],
-    data: { trial_type: 'practice_feedback' }
-};
-timeline.push(practiceFeedback);
 
 // -----------------------------------------------------------------------------
 // MAIN EXPERIMENTAL TRIALS
@@ -1263,7 +603,7 @@ const mainTrialProcedure = {
                 const baseRate = jsPsych.evaluateTimelineVariable('base_rate');
                 const trialIndex = jsPsych.evaluateTimelineVariable('trial_index');
                 return `
-                    ${createTrialStimulus(baseRate, false, trialIndex + 1, totalTrials)}
+                    ${createTrialStimulus(baseRate, trialIndex + 1, totalTrials)}
                     <div class="sentence-completion">
                         <span>"Which vials are</span>
                         <input type="text" id="completion" name="completion" placeholder="type here..." autocomplete="off" required>
