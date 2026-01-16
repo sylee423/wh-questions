@@ -193,7 +193,7 @@ const DEBRIEF_HTML = `
         <p>Your responses are completely anonymous and will only be used for research purposes.
         No identifying information has been collected.</p>
 
-        <p>If you have any questions about this research, please contact rdhawkins@stanford.edu.</p>
+        <p>If you have any questions about this research, please contact sylee423@stanford.edu or rdhawkins@stanford.edu.</p>
     </div>
 `;
 
