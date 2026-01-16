@@ -210,7 +210,7 @@ function createComprehensionCheck1(jsPsych, goalCondition, decisionStructure) {
     const optionsBase = decisionStructure === 'singleton'
         ? [
             'Run experiment on an uncontaminated vial',
-            'Examine a contaminated vial',
+            'Find out contaminant in a contaminated vial',
             'Test as many vials as possible',
             'Ask the assistant multiple questions'
         ]
@@ -257,7 +257,7 @@ function createComprehensionCheck1(jsPsych, goalCondition, decisionStructure) {
                     if (decisionStructure === 'singleton') {
                         reminderText = goalCondition === 'uncont'
                             ? 'run your experiment successfully'
-                            : 'identify the contaminant';
+                            : 'find out the contaminant';
                     } else {
                         reminderText = goalCondition === 'uncont'
                             ? 'help Dr. Smith\'s experiment succeed'
