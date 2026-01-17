@@ -215,8 +215,8 @@ function createComprehensionCheck1(jsPsych, goalCondition, decisionStructure) {
             'Ask the assistant multiple questions'
         ]
         : [
-            'Help Dr. Smith\'s experiment succeed',
-            'Help the lab pass the safety inspection',
+            'Help Dr. Smith run experiments on uncontaminated vials',
+            'Remove contaminated vials to pass the safety inspection',
             'Sort vials as quickly as possible',
             'Ask the assistant multiple questions'
         ];

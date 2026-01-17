@@ -160,7 +160,7 @@ function getVisualInstructionPages() {
                 </div>
                 <div class="goal-card uncont-goal">
                     <span class="icon">⚠</span>
-                    <span><strong>Your Goal:</strong> Do experiment with uncontaminated vial</span>
+                    <span><strong>Your Goal:</strong> Do experiment with an uncontaminated vial</span>
                 </div>
             </div>
         `);
@@ -275,7 +275,9 @@ function createTrialStimulus(baseRate, trialNum = null, totalTrials = null) {
                 <span class="icon">${getGoalConfig().icon}</span>
                 <span><strong>Your Goal:</strong> ${getGoalConfig().text}</span>
             </div>
-            <p class="instruction-text">You ask your lab assistant: </p>
+            <div class="question-prompt">
+                You ask your assistant:
+            </div>
         </div>
     `;
 }
@@ -338,8 +340,27 @@ const mainTrialProcedure = {
                 const response = data.response.completion.trim().toLowerCase();
                 data.raw_response = data.response.completion.trim();
                 data.response_lowercase = response;
-                data.chose_which_contaminated = response.includes('contaminated') || response.includes('dangerous') || response.includes('unsafe');
-                data.chose_which_uncontaminated = response.includes('uncontaminated') || response.includes('safe') || response.includes('clean');
+                data.chose_which_contaminated = response.includes('contaminated') 
+                || response.includes('dangerous') 
+                || response.includes('unsafe') 
+                || response.includes('unclean')
+                || response.includes('dirty')
+                || response.includes('not safe')
+                || response.includes('not clean')
+                && !response.includes('uncontaminated')
+                && !response.includes('not contaminated')
+                && !response.includes('not dangerous')
+                && !response.includes('not dirty');
+                data.chose_which_uncontaminated = response.includes('uncontaminated') 
+                || response.includes('not contaminated')
+                || response.includes('safe') 
+                || response.includes('clean') 
+                || response.includes('not dangerous')
+                || response.includes('not dirty')
+                && !response.includes('unsafe') 
+                && !response.includes('unclean')
+                && !response.includes('not safe')
+                && !response.includes('not clean');
             }
         },
         {
