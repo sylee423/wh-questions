@@ -50,6 +50,9 @@ const buttonDisableTime = testMode ? 100 : 2000;
 // Number of vials (10, identical to exp1)
 const nVials = 10;
 
+// Base Rate (fixed as 0.5 for exp2)
+const base_rate_const = 0.5;
+
 // Question options for forced choice
 const questionOptions = [
     "Which vials are contaminated?",
@@ -150,9 +153,8 @@ function getVisualInstructionPages() {
     pages.push(`
         <div class="instruction-container fade-in">
             <h2 class="instruction-title">⚠️ The Problem</h2>
-            <p class="instruction-text">While you were taking a break outside, 
-                ${baseRate * nVials} vials got contaminated,
-                while ${nVials - (baseRate * nVials)} were left intact.</p>
+            <p class="instruction-text">While you were taking a break outside, ${base_rate_const * nVials} of the vials got contaminated,
+                while ${nVials - (base_rate_const * nVials)} were left intact.</p>
             ${renderVialRack(nVials, states = ['safe', 'danger', 'danger', 'danger', 'safe', 'safe', 'safe', 'danger', 'safe', 'danger'])}
             <p class="instruction-text">But you can't tell which is which just by looking!</p>
         </div>
@@ -400,7 +402,6 @@ const strategyProbe = {
     data: { trial_type: 'strategy_probe' }
 };
 timeline.push(strategyProbe);
-
 
 // -----------------------------------------------------------------------------
 // DEBRIEF
