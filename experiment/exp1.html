@@ -340,27 +340,19 @@ const mainTrialProcedure = {
                 const response = data.response.completion.trim().toLowerCase();
                 data.raw_response = data.response.completion.trim();
                 data.response_lowercase = response;
-                data.chose_which_contaminated = response.includes('contaminated') 
-                || response.includes('dangerous') 
+                data.chose_which_contaminated = (response.includes('contaminated') && !response.includes('uncontaminated') && !response.includes('not contaminated')) 
+                || (response.includes('dangerous') && !response.includes('not dangerous')) 
                 || response.includes('unsafe') 
                 || response.includes('unclean')
-                || response.includes('dirty')
+                || (response.includes('dirty') && !response.includes('not dirty'))
                 || response.includes('not safe')
-                || response.includes('not clean')
-                && !response.includes('uncontaminated')
-                && !response.includes('not contaminated')
-                && !response.includes('not dangerous')
-                && !response.includes('not dirty');
+                || response.includes('not clean');
                 data.chose_which_uncontaminated = response.includes('uncontaminated') 
                 || response.includes('not contaminated')
-                || response.includes('safe') 
-                || response.includes('clean') 
+                || (response.includes('safe') && !response.includes('unsafe') && !response.includes('not safe')) 
+                || (response.includes('clean') && !response.includes('unclean') && !response.includes('not clean'))
                 || response.includes('not dangerous')
-                || response.includes('not dirty')
-                && !response.includes('unsafe') 
-                && !response.includes('unclean')
-                && !response.includes('not safe')
-                && !response.includes('not clean');
+                || response.includes('not dirty');
             }
         },
         {
