@@ -160,7 +160,7 @@ function getVisualInstructionPages() {
                 </div>
                 <div class="goal-card uncont-goal">
                     <span class="icon">⚠</span>
-                    <span><strong>Your Goal:</strong> Do experiment with uncontaminated vial</span>
+                    <span><strong>Your Goal:</strong> Do experiment with an uncontaminated vial</span>
                 </div>
             </div>
         `);
@@ -268,14 +268,16 @@ function createTrialStimulus(baseRate, trialNum = null, totalTrials = null) {
     return `
         <div class="trial-container">
             <p class="instruction-text">Suppose that you know 
-                that ${baseRate * 10} vials are contaminated, and ${10 - (baseRate * 10)} are uncontaminated.</p>
+                that ${baseRate * nVials} vials are contaminated, and ${nVials - (baseRate * nVials)} are uncontaminated.</p>
             ${trialHeader}
             ${renderVialRack(nVials)}
             <div class="goal-card ${getGoalConfig().cssClass}">
                 <span class="icon">${getGoalConfig().icon}</span>
                 <span><strong>Your Goal:</strong> ${getGoalConfig().text}</span>
             </div>
-            <p class="instruction-text">You ask your lab assistant: </p>
+            <div class="question-prompt">
+                You ask your assistant:
+            </div>
         </div>
     `;
 }
@@ -338,8 +340,19 @@ const mainTrialProcedure = {
                 const response = data.response.completion.trim().toLowerCase();
                 data.raw_response = data.response.completion.trim();
                 data.response_lowercase = response;
-                data.chose_which_contaminated = response.includes('contaminated') || response.includes('dangerous') || response.includes('unsafe');
-                data.chose_which_uncontaminated = response.includes('uncontaminated') || response.includes('safe') || response.includes('clean');
+                data.chose_which_contaminated = (response.includes('contaminated') && !response.includes('uncontaminated') && !response.includes('not contaminated')) 
+                || (response.includes('dangerous') && !response.includes('not dangerous')) 
+                || response.includes('unsafe') 
+                || response.includes('unclean')
+                || (response.includes('dirty') && !response.includes('not dirty'))
+                || response.includes('not safe')
+                || response.includes('not clean');
+                data.chose_which_uncontaminated = response.includes('uncontaminated') 
+                || response.includes('not contaminated')
+                || (response.includes('safe') && !response.includes('unsafe') && !response.includes('not safe')) 
+                || (response.includes('clean') && !response.includes('unclean') && !response.includes('not clean'))
+                || response.includes('not dangerous')
+                || response.includes('not dirty');
             }
         },
         {
@@ -376,16 +389,6 @@ const strategyProbe = {
 };
 timeline.push(strategyProbe);
 
-// -----------------------------------------------------------------------------
-// DEMOGRAPHICS
-// -----------------------------------------------------------------------------
-
-const demographics = {
-    type: jsPsychSurveyHtmlForm,
-    html: DEMOGRAPHICS_HTML,
-    data: { trial_type: 'demographics' }
-};
-timeline.push(demographics);
 
 // -----------------------------------------------------------------------------
 // DEBRIEF
@@ -410,7 +413,7 @@ const save_data = {
     filename: filename,
     data_string: ()=>jsPsych.data.get().csv()
 };                          
-timeline.push(save_data)		    
+timeline.push(save_data);		    
 // =============================================================================
 // RUN EXPERIMENT
 // =============================================================================
