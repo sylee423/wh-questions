@@ -268,7 +268,7 @@ function createTrialStimulus(baseRate, trialNum = null, totalTrials = null) {
     return `
         <div class="trial-container">
             <p class="instruction-text">Suppose that you know 
-                that ${baseRate * 10} vials are contaminated, and ${10 - (baseRate * 10)} are uncontaminated.</p>
+                that ${baseRate * nVials} vials are contaminated, and ${nVials - (baseRate * nVials)} are uncontaminated.</p>
             ${trialHeader}
             ${renderVialRack(nVials)}
             <div class="goal-card ${getGoalConfig().cssClass}">
@@ -421,7 +421,7 @@ const save_data = {
     filename: filename,
     data_string: ()=>jsPsych.data.get().csv()
 };                          
-timeline.push(save_data)		    
+timeline.push(save_data);		    
 // =============================================================================
 // RUN EXPERIMENT
 // =============================================================================
