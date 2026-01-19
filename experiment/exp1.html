@@ -273,10 +273,15 @@ function createBaseRateCheck() {
     let attempts = 0;
     let passed = false;
 
+    // Generate distractor that's always different from correct answer
+    const distractor = nContaminated === 5
+        ? `2 contaminated, 8 uncontaminated`
+        : `5 contaminated, 5 uncontaminated`;
+
     const optionsBase = [
         `${nContaminated} contaminated, ${nUncontaminated} uncontaminated`,
         `${nUncontaminated} contaminated, ${nContaminated} uncontaminated`,
-        `5 contaminated, 5 uncontaminated`,
+        distractor,
         `I don't know`
     ];
     const correctAnswer = optionsBase[0];
