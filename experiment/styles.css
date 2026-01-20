@@ -391,14 +391,10 @@
     font-size: 28px;
 }
 
-.goal-card.uncont-goal {
-    border-color: var(--safe-color);
-    background: var(--safe-light);
-}
-
+.goal-card.uncont-goal,
 .goal-card.cont-goal {
-    border-color: var(--danger-color);
-    background: var(--danger-light);
+    border-color: var(--goal-border);
+    background: var(--goal-highlight);
 }
 
 .question-prompt {
@@ -464,16 +460,17 @@
     padding: 20px;
     border-radius: 10px;
     min-width: 200px;
+    background: #fafafa;
+    border: 2px solid #ccc;
 }
 
 .outcome-box.success {
-    background: var(--safe-light);
-    border: 2px solid var(--safe-color);
+    border: 3px solid #333;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 .outcome-box.failure {
-    background: var(--danger-light);
-    border: 2px solid var(--danger-color);
+    border: 2px dashed #999;
 }
 
 .outcome-icon {
@@ -484,6 +481,14 @@
 .outcome-label {
     font-weight: bold;
     font-size: 16px;
+}
+
+.outcome-label.success-label {
+    color: #333;
+}
+
+.outcome-label.failure-label {
+    color: #666;
 }
 
 /* =================================================================
